@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NHS Doctor Take-Home Pay Calculator</title>
+    <title>NHS Doctor Pay & Budget Calculator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -16,108 +16,443 @@
             color: #4b5563; /* gray-700 */
             margin-left: 1.5rem; /* ml-6 */
         }
+        .page {
+            display: none; /* Hidden by default */
+        }
+        .page.active {
+            display: block; /* Show active page */
+        }
+        .input-field {
+            @apply shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out;
+        }
+        .select-field {
+            @apply shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out;
+        }
+        .category-heading {
+            @apply text-lg font-semibold text-blue-700 mb-3 border-b pb-2 border-blue-200;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 md:p-8 lg:p-10 bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-xl md:max-w-2xl lg:max-w-3xl">
-        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-700 mb-6">NHS Doctor Take-Home Pay Calculator</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-700 mb-6">NHS Doctor Pay & Budget Calculator</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="mb-4 md:mb-0">
-                <label for="taxYear" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Select Tax Year:
-                </label>
-                <select id="taxYear"
-                        class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                        onchange="calculatePay()">
-                    <option value="2024/2025" selected>2024/2025</option>
-                    <option value="2025/2026">2025/2026</option>
-                </select>
+        <!-- Page 1: Take-Home Pay Calculator -->
+        <div id="page-calculator" class="page active">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="mb-4 md:mb-0">
+                    <label for="taxYear" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Select Tax Year:
+                    </label>
+                    <select id="taxYear"
+                            class="input-field"
+                            onchange="calculatePay()">
+                        <option value="2024/2025" selected>2024/2025</option>
+                        <option value="2025/2026">2025/2026</option>
+                    </select>
+                </div>
+
+                <div class="mb-4 md:mb-0">
+                    <label for="baseSalaryAnnual" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Base Annual Salary (£):
+                    </label>
+                    <input type="number" id="baseSalaryAnnual" value="80000" min="0"
+                           class="input-field"
+                           oninput="calculatePay()">
+                </div>
+
+                <div class="mb-4 md:mb-0">
+                    <label for="locumRate" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Locum Hourly Rate (£):
+                    </label>
+                    <input type="number" id="locumRate" value="80" min="0"
+                           class="input-field"
+                           oninput="calculatePay()">
+                </div>
+
+                <div class="mb-4 md:mb-0">
+                    <label for="locumHours" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Additional Locum Hours per Month:
+                    </label>
+                    <input type="number" id="locumHours" value="20" min="0"
+                           class="input-field"
+                           oninput="calculatePay()">
+                </div>
+
+                <div class="mb-4 md:mb-0">
+                    <label for="salarySacrificeMonthly" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Monthly Salary Sacrifice Amount (£):
+                    </label>
+                    <input type="number" id="salarySacrificeMonthly" value="0" min="0"
+                           class="input-field"
+                           oninput="calculatePay()">
+                </div>
+
+                <div class="mb-4 md:mb-0">
+                    <label for="monthlySIPPContribution" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Monthly SIPP Contribution (Net) (£):
+                    </label>
+                    <input type="number" id="monthlySIPPContribution" value="0" min="0"
+                           class="input-field"
+                           oninput="calculatePay()">
+                </div>
             </div>
 
-            <div class="mb-4 md:mb-0">
-                <label for="baseSalaryAnnual" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Base Annual Salary (£):
-                </label>
-                <input type="number" id="baseSalaryAnnual" value="80000" min="0"
-                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                       oninput="calculatePay()">
-            </div>
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <h2 class="text-lg font-semibold text-blue-800 mb-3">Pay Breakdown:</h2>
+                <div class="space-y-2 text-gray-800">
+                    <p><strong>Total Gross Annual Income:</strong> <span id="annualGross" class="font-medium"></span></p>
+                    <p><strong>Total Gross Monthly Income:</strong> <span id="monthlyGross" class="font-medium"></span></p>
 
-            <div class="mb-4 md:mb-0">
-                <label for="locumRate" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Locum Hourly Rate (£):
-                </label>
-                <input type="number" id="locumRate" value="80" min="0"
-                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                       oninput="calculatePay()">
-            </div>
+                    <p class="pt-2 border-t border-blue-200"><strong>Annual Pension Contribution:</strong> <span id="annualPension" class="font-medium text-red-600"></span></p>
+                    <p class="info-detail" id="pensionRateDetail"></p>
+                    <p><strong>Monthly Pension Contribution:</strong> <span id="monthlyPension" class="font-medium text-red-600"></span></p>
 
-            <div class="mb-4 md:mb-0">
-                <label for="locumHours" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Additional Locum Hours per Month:
-                </label>
-                <input type="number" id="locumHours" value="20" min="0"
-                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                       oninput="calculatePay()">
-            </div>
+                    <p><strong>Annual Salary Sacrifice:</strong> <span id="annualSalarySacrifice" class="font-medium text-red-600"></span></p>
+                    <p><strong>Monthly Salary Sacrifice:</strong> <span id="monthlySalarySacrifice" class="font-medium text-red-600"></span></p>
 
-            <div class="mb-4 md:mb-0">
-                <label for="salarySacrificeMonthly" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Monthly Salary Sacrifice Amount (£):
-                </label>
-                <input type="number" id="salarySacrificeMonthly" value="0" min="0"
-                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus="ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                       oninput="calculatePay()">
-            </div>
+                    <p><strong>Annual SIPP Contribution (Net):</strong> <span id="annualSIPPContributionDisplay" class="font-medium text-red-600"></span></p>
+                    <p><strong>Monthly SIPP Contribution (Net):</strong> <span id="monthlySIPPContributionDisplay" class="font-medium text-red-600"></span></p>
+                    <p class="info-detail" id="sippTaxReliefDetail"></p>
+                    <p><strong>Annual SIPP Tax Relief:</strong> <span id="annualSIPP_TaxRelief" class="font-medium text-green-700"></span></p>
+                    <p><strong>Monthly SIPP Tax Relief:</strong> <span id="monthlySIPP_TaxRelief" class="font-medium text-green-700"></span></p>
 
-            <div class="mb-4 md:mb-0">
-                <label for="monthlySIPPContribution" class="block text-gray-700 text-sm font-semibold mb-2">
-                    Monthly SIPP Contribution (Net) (£):
-                </label>
-                <input type="number" id="monthlySIPPContribution" value="0" min="0"
-                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus="ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
-                       oninput="calculatePay()">
+
+                    <p class="pt-2 border-t border-blue-200"><strong>Annual Income Tax:</strong> <span id="annualTax" class="font-medium text-red-600"></span></p>
+                    <div id="taxBreakdown" class="info-detail space-y-1"></div>
+                    <p><strong>Monthly Income Tax:</strong> <span id="monthlyTax" class="font-medium text-red-600"></span></p>
+
+                    <p><strong>Annual National Insurance:</strong> <span id="annualNI" class="font-medium text-red-600"></span></p>
+                    <div id="niBreakdown" class="info-detail space-y-1"></div>
+                    <p><strong>Monthly National Insurance:</strong> <span id="monthlyNI" class="font-medium text-red-600"></span></p>
+
+                    <p class="pt-2 border-t border-blue-200"><strong>Annual Personal Allowance Lost:</strong> <span id="annualPALost" class="font-medium text-red-600"></span></p>
+                    <p><strong>Monthly Personal Allowance Lost:</strong> <span id="monthlyPALost" class="font-medium text-red-600"></span></p>
+
+                    <p class="pt-2 border-t border-blue-200"><strong>Monthly Take-Home Pay:</strong> <span id="monthlyNet" class="font-bold text-green-700 text-xl"></span></p>
+                    <p><strong>Annual Take-Home Pay:</strong> <span id="annualNet" class="font-bold text-green-700 text-xl"></span></p>
+                </div>
             </div>
+            <button onclick="showPage('page-outgoings')"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                View Outgoings
+            </button>
         </div>
 
-        <div class="bg-blue-50 p-4 rounded-lg mb-6">
-            <h2 class="text-lg font-semibold text-blue-800 mb-3">Pay Breakdown:</h2>
-            <div class="space-y-2 text-gray-800">
-                <p><strong>Total Gross Annual Income:</strong> <span id="annualGross" class="font-medium"></span></p>
-                <p><strong>Total Gross Monthly Income:</strong> <span id="monthlyGross" class="font-medium"></span></p>
+        <!-- Page 2: Outgoings and Budget -->
+        <div id="page-outgoings" class="page">
+            <h2 class="text-xl sm:text-2xl font-bold text-center text-blue-700 mb-6">Your Monthly Outgoings</h2>
 
-                <p class="pt-2 border-t border-blue-200"><strong>Annual Pension Contribution:</strong> <span id="annualPension" class="font-medium text-red-600"></span></p>
-                <p class="info-detail" id="pensionRateDetail"></p>
-                <p><strong>Monthly Pension Contribution:</strong> <span id="monthlyPension" class="font-medium text-red-600"></span></p>
-
-                <p><strong>Annual Salary Sacrifice:</strong> <span id="annualSalarySacrifice" class="font-medium text-red-600"></span></p>
-                <p><strong>Monthly Salary Sacrifice:</strong> <span id="monthlySalarySacrifice" class="font-medium text-red-600"></span></p>
-
-                <p><strong>Annual SIPP Contribution (Net):</strong> <span id="annualSIPPContributionDisplay" class="font-medium text-red-600"></span></p>
-                <p><strong>Monthly SIPP Contribution (Net):</strong> <span id="monthlySIPPContributionDisplay" class="font-medium text-red-600"></span></p>
-                <p class="info-detail" id="sippTaxReliefDetail"></p>
-                <p><strong>Annual SIPP Tax Relief:</strong> <span id="annualSIPP_TaxRelief" class="font-medium text-green-700"></span></p>
-                <p><strong>Monthly SIPP Tax Relief:</strong> <span id="monthlySIPP_TaxRelief" class="font-medium text-green-700"></span></p>
-
-
-                <p class="pt-2 border-t border-blue-200"><strong>Annual Income Tax:</strong> <span id="annualTax" class="font-medium text-red-600"></span></p>
-                <div id="taxBreakdown" class="info-detail space-y-1"></div>
-                <p><strong>Monthly Income Tax:</strong> <span id="monthlyTax" class="font-medium text-red-600"></span></p>
-
-                <p><strong>Annual National Insurance:</strong> <span id="annualNI" class="font-medium text-red-600"></span></p>
-                <div id="niBreakdown" class="info-detail space-y-1"></div>
-                <p><strong>Monthly National Insurance:</strong> <span id="monthlyNI" class="font-medium text-red-600"></span></p>
-
-                <p class="pt-2 border-t border-blue-200"><strong>Annual Personal Allowance Lost:</strong> <span id="annualPALost" class="font-medium text-red-600"></span></p>
-                <p><strong>Monthly Personal Allowance Lost:</strong> <span id="monthlyPALost" class="font-medium text-red-600"></span></p>
-
-                <p class="pt-2 border-t border-blue-200"><strong>Monthly Take-Home Pay:</strong> <span id="monthlyNet" class="font-bold text-green-700 text-xl"></span></p>
-                <p><strong>Annual Take-Home Pay:</strong> <span id="annualNet" class="font-bold text-green-700 text-xl"></span></p>
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <p class="text-lg font-semibold text-blue-800">
+                    Your Monthly Take-Home Pay: <span id="outgoingsMonthlyNet" class="font-bold text-green-700"></span>
+                </p>
+                <p class="text-lg font-semibold text-blue-800">
+                    Your Annual Take-Home Pay: <span id="outgoingsAnnualNet" class="font-bold text-green-700"></span>
+                </p>
             </div>
+
+            <!-- Outgoings Categories -->
+            <div class="space-y-6">
+                <!-- Housing -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Housing</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="housing_mortgageRent" class="block text-gray-700 text-sm font-semibold mb-2">Mortgage/Rent (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="housing_mortgageRent" value="1000" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="housing_mortgageRent_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="housing_councilTax" class="block text-gray-700 text-sm font-semibold mb-2">Council Tax (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="housing_councilTax" value="150" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="housing_councilTax_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="housing_houseInsurance" class="block text-gray-700 text-sm font-semibold mb-2">House Insurance (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="housing_houseInsurance" value="30" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="housing_houseInsurance_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Services</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="services_octopus" class="block text-gray-700 text-sm font-semibold mb-2">Octopus (Electric & Gas) (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="services_octopus" value="150" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="services_octopus_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="services_severnTrent" class="block text-gray-700 text-sm font-semibold mb-2">Severn Trent (Water) (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="services_severnTrent" value="40" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="services_severnTrent_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="services_phoneInternet" class="block text-gray-700 text-sm font-semibold mb-2">Phone/Internet (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="services_phoneInternet" value="50" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="services_phoneInternet_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="services_streamingTV" class="block text-gray-700 text-sm font-semibold mb-2">Streaming/TV Licence (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="services_streamingTV" value="20" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="services_streamingTV_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="services_other" class="block text-gray-700 text-sm font-semibold mb-2">Other Services (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="services_other" value="0" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="services_other_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Car -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Car</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="car_fuel" class="block text-gray-700 text-sm font-semibold mb-2">Fuel (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_fuel" value="150" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_fuel_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="car_tax" class="block text-gray-700 text-sm font-semibold mb-2">Car Tax (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_tax" value="180" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_tax_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="annually">Annually</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="car_mot" class="block text-gray-700 text-sm font-semibold mb-2">MOT (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_mot" value="50" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_mot_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="annually">Annually</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="car_service" class="block text-gray-700 text-sm font-semibold mb-2">Service (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_service" value="200" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_service_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="annually">Annually</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="car_insurance" class="block text-gray-700 text-sm font-semibold mb-2">Car Insurance (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_insurance" value="50" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_insurance_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscriptions -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Subscriptions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="subscriptions_netflix" class="block text-gray-700 text-sm font-semibold mb-2">Netflix (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="subscriptions_netflix" value="15" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="subscriptions_netflix_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subscriptions_amazonPrime" class="block text-gray-700 text-sm font-semibold mb-2">Amazon Prime (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="subscriptions_amazonPrime" value="9" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="subscriptions_amazonPrime_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subscriptions_disneyPlus" class="block text-gray-700 text-sm font-semibold mb-2">Disney+ (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="subscriptions_disneyPlus" value="8" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="subscriptions_disneyPlus_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="subscriptions_other" class="block text-gray-700 text-sm font-semibold mb-2">Other Subscriptions (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="subscriptions_other" value="0" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="subscriptions_other_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debt -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Debt Repayments</h3>
+                    <div id="debt-items-container" class="space-y-4 mb-4">
+                        <!-- Default Debt Item -->
+                        <div class="debt-item flex flex-col md:flex-row items-start md:items-center gap-2">
+                            <input type="text" placeholder="e.g., Credit Card" value="Credit Card" class="input-field flex-grow" aria-label="Debt Name">
+                            <input type="number" value="100" min="0" class="input-field w-24" oninput="calculateOutgoings()" aria-label="Debt Amount">
+                            <select class="select-field w-auto" onchange="calculateOutgoings()" aria-label="Debt Frequency">
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly">Quarterly</option>
+                                <option value="annually">Annually</option>
+                            </select>
+                            <button onclick="removeDebtItem(this)" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-lg shadow-sm transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex-shrink-0">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="addDebtItem()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
+                        Add New Debt
+                    </button>
+                </div>
+
+                <!-- Savings -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Savings</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="savings_children" class="block text-gray-700 text-sm font-semibold mb-2">Children's Savings (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="savings_children" value="50" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="savings_children_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="savings_sands" class="block text-gray-700 text-sm font-semibold mb-2">S&S ISA (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="savings_sands" value="100" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="savings_sands_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="savings_james" class="block text-gray-700 text-sm font-semibold mb-2">James's Savings (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="savings_james" value="0" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="savings_james_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="savings_other" class="block text-gray-700 text-sm font-semibold mb-2">Other Savings (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="savings_other" value="0" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="savings_other_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New: Monthly Costs Summary -->
+            <div class="bg-gray-100 p-4 rounded-lg mb-6 border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">Monthly Costs Summary</h3>
+                <div class="space-y-1 text-gray-700">
+                    <p><strong>Housing:</strong> <span id="summary_housing" class="font-medium"></span></p>
+                    <p><strong>Services:</strong> <span id="summary_services" class="font-medium"></span></p>
+                    <p><strong>Car:</strong> <span id="summary_car" class="font-medium"></span></p>
+                    <p><strong>Subscriptions:</strong> <span id="summary_subscriptions" class="font-medium"></span></p>
+                    <p><strong>Debt Repayments:</strong> <span id="summary_debt" class="font-medium"></span></p>
+                    <p><strong>Savings:</strong> <span id="summary_savings" class="font-medium"></span></p>
+                    <p class="pt-2 border-t border-gray-300"><strong>Total Monthly Outgoings:</strong> <span id="totalMonthlyOutgoings" class="font-bold text-red-600 text-lg"></span></p>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-4 rounded-lg mb-6">
+                <h3 class="text-lg font-semibold text-green-800 mb-3">Overall Budget Summary:</h3>
+                <p><strong>Total Annual Outgoings:</strong> <span id="totalAnnualOutgoings" class="font-medium text-red-600"></span></p>
+                <p class="pt-2 border-t border-green-200"><strong>Monthly Money Left:</strong> <span id="moneyLeftMonthly" class="font-bold text-green-700 text-xl"></span></p>
+                <p><strong>Annual Money Left:</strong> <span id="moneyLeftAnnual" class="font-bold text-green-700 text-xl"></span></p>
+            </div>
+
+            <button onclick="showPage('page-calculator')"
+                    class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75">
+                Back to Calculator
+            </button>
         </div>
 
-        <div class="text-sm text-gray-600">
+        <div class="text-sm text-gray-600 mt-6">
             <p>
                 * Calculations are based on the selected UK tax year rates.
             </p>
@@ -137,6 +472,10 @@
     </div>
 
     <script>
+        // Global variables to store net pay for transfer between pages
+        let globalMonthlyNetPay = 0;
+        let globalAnnualNetPay = 0;
+
         // Function to format numbers as currency
         function formatCurrency(amount) {
             return `£${amount.toFixed(2)}`;
@@ -201,6 +540,25 @@
 
 
         /**
+         * Converts an amount from a given frequency to its monthly equivalent.
+         * @param {number} amount - The amount to convert.
+         * @param {string} frequency - The frequency ('monthly', 'quarterly', 'annually').
+         * @returns {number} The monthly equivalent amount.
+         */
+        function convertToMonthly(amount, frequency) {
+            switch (frequency) {
+                case 'monthly':
+                    return amount;
+                case 'quarterly':
+                    return amount / 3;
+                case 'annually':
+                    return amount / 12;
+                default:
+                    return amount; // Default to monthly if frequency is unknown
+            }
+        }
+
+        /**
          * Calculates the NHS Pension contribution rate based on annual pensionable pay
          * and the selected tax year's tiers.
          * @param {number} pensionablePay - The annual income used for pension calculation (gross minus salary sacrifice).
@@ -226,12 +584,11 @@
             const selectedTaxYear = document.getElementById('taxYear').value;
             const currentTaxYearData = taxYearData[selectedTaxYear];
 
-            const baseAnnualSalary = parseFloat(document.getElementById('baseSalaryAnnual').value);
-            const locumHourlyRate = parseFloat(document.getElementById('locumRate').value);
-            const locumHoursPerMonth = parseFloat(document.getElementById('locumHours').value);
-            const monthlySalarySacrifice = parseFloat(document.getElementById('salarySacrificeMonthly').value);
-            // Changed SIPP input to monthly
-            const monthlySIPPContribution = parseFloat(document.getElementById('monthlySIPPContribution').value);
+            const baseAnnualSalary = parseFloat(document.getElementById('baseSalaryAnnual').value) || 0;
+            const locumHourlyRate = parseFloat(document.getElementById('locumRate').value) || 0;
+            const locumHoursPerMonth = parseFloat(document.getElementById('locumHours').value) || 0;
+            const monthlySalarySacrifice = parseFloat(document.getElementById('salarySacrificeMonthly').value) || 0;
+            const monthlySIPPContribution = parseFloat(document.getElementById('monthlySIPPContribution').value) || 0;
 
             // Calculate annual equivalents from monthly inputs
             const annualLocumIncome = locumHoursPerMonth * locumHourlyRate * 12;
@@ -268,6 +625,10 @@
                 document.getElementById('monthlyPALost').textContent = '';
                 document.getElementById('monthlyNet').textContent = '';
                 document.getElementById('annualNet').textContent = '';
+
+                // Also clear global net pay
+                globalMonthlyNetPay = 0;
+                globalAnnualNetPay = 0;
                 return;
             }
 
@@ -418,6 +779,11 @@
 
             const monthlyNet = annualTakeHomePay / 12;
 
+            // --- Store net pay globally for the outgoings page ---
+            globalMonthlyNetPay = monthlyNet;
+            globalAnnualNetPay = annualTakeHomePay;
+
+
             // --- Display Results ---
             document.getElementById('annualGross').textContent = formatCurrency(grossAnnualIncomeBeforeSacrifice);
             document.getElementById('monthlyGross').textContent = formatCurrency(monthlyGross);
@@ -451,8 +817,153 @@
             document.getElementById('annualNet').textContent = formatCurrency(annualTakeHomePay);
         }
 
-        // Calculate on page load with default values
-        window.onload = calculatePay;
+        /**
+         * Calculates total outgoings and remaining money.
+         */
+        function calculateOutgoings() {
+            let totalMonthlyOutgoings = 0;
+            let monthlyCategoryTotals = {
+                housing: 0,
+                services: 0,
+                car: 0, // New category
+                subscriptions: 0,
+                debt: 0,
+                savings: 0
+            };
+
+            // Helper to get value and convert to monthly
+            const getMonthlyValue = (id, freqId) => {
+                const amount = parseFloat(document.getElementById(id).value) || 0;
+                const frequency = document.getElementById(freqId).value;
+                return convertToMonthly(amount, frequency);
+            };
+
+            // Housing
+            monthlyCategoryTotals.housing += getMonthlyValue('housing_mortgageRent', 'housing_mortgageRent_freq');
+            monthlyCategoryTotals.housing += getMonthlyValue('housing_councilTax', 'housing_councilTax_freq');
+            monthlyCategoryTotals.housing += getMonthlyValue('housing_houseInsurance', 'housing_houseInsurance_freq');
+
+            // Services
+            monthlyCategoryTotals.services += getMonthlyValue('services_octopus', 'services_octopus_freq'); // Changed ID
+            monthlyCategoryTotals.services += getMonthlyValue('services_severnTrent', 'services_severnTrent_freq'); // Changed ID
+            monthlyCategoryTotals.services += getMonthlyValue('services_phoneInternet', 'services_phoneInternet_freq');
+            monthlyCategoryTotals.services += getMonthlyValue('services_streamingTV', 'services_streamingTV_freq');
+            monthlyCategoryTotals.services += getMonthlyValue('services_other', 'services_other_freq');
+
+            // Car
+            monthlyCategoryTotals.car += getMonthlyValue('car_fuel', 'car_fuel_freq');
+            monthlyCategoryTotals.car += getMonthlyValue('car_tax', 'car_tax_freq');
+            monthlyCategoryTotals.car += getMonthlyValue('car_mot', 'car_mot_freq');
+            monthlyCategoryTotals.car += getMonthlyValue('car_service', 'car_service_freq');
+            monthlyCategoryTotals.car += getMonthlyValue('car_insurance', 'car_insurance_freq');
+
+
+            // Subscriptions
+            monthlyCategoryTotals.subscriptions += getMonthlyValue('subscriptions_netflix', 'subscriptions_netflix_freq');
+            monthlyCategoryTotals.subscriptions += getMonthlyValue('subscriptions_amazonPrime', 'subscriptions_amazonPrime_freq');
+            monthlyCategoryTotals.subscriptions += getMonthlyValue('subscriptions_disneyPlus', 'subscriptions_disneyPlus_freq');
+            monthlyCategoryTotals.subscriptions += getMonthlyValue('subscriptions_other', 'subscriptions_other_freq');
+
+            // Debt (dynamic)
+            document.querySelectorAll('#debt-items-container .debt-item').forEach(item => {
+                const amountInput = item.querySelector('input[type="number"]');
+                const freqSelect = item.querySelector('select');
+                if (amountInput && freqSelect) {
+                    monthlyCategoryTotals.debt += convertToMonthly(parseFloat(amountInput.value) || 0, freqSelect.value);
+                }
+            });
+
+            // Savings
+            monthlyCategoryTotals.savings += getMonthlyValue('savings_children', 'savings_children_freq');
+            monthlyCategoryTotals.savings += getMonthlyValue('savings_sands', 'savings_sands_freq');
+            monthlyCategoryTotals.savings += getMonthlyValue('savings_james', 'savings_james_freq');
+            monthlyCategoryTotals.savings += getMonthlyValue('savings_other', 'savings_other_freq');
+
+            // Sum all category totals for overall monthly outgoings
+            for (const category in monthlyCategoryTotals) {
+                totalMonthlyOutgoings += monthlyCategoryTotals[category];
+            }
+
+            const totalAnnualOutgoings = totalMonthlyOutgoings * 12;
+
+            const monthlyMoneyLeft = globalMonthlyNetPay - totalMonthlyOutgoings;
+            const annualMoneyLeft = globalAnnualNetPay - totalAnnualOutgoings;
+
+            // Display Monthly Costs Summary
+            document.getElementById('summary_housing').textContent = formatCurrency(monthlyCategoryTotals.housing);
+            document.getElementById('summary_services').textContent = formatCurrency(monthlyCategoryTotals.services);
+            document.getElementById('summary_car').textContent = formatCurrency(monthlyCategoryTotals.car); // Display car summary
+            document.getElementById('summary_subscriptions').textContent = formatCurrency(monthlyCategoryTotals.subscriptions);
+            document.getElementById('summary_debt').textContent = formatCurrency(monthlyCategoryTotals.debt);
+            document.getElementById('summary_savings').textContent = formatCurrency(monthlyCategoryTotals.savings);
+
+
+            document.getElementById('totalMonthlyOutgoings').textContent = formatCurrency(totalMonthlyOutgoings);
+            document.getElementById('totalAnnualOutgoings').textContent = formatCurrency(totalAnnualOutgoings);
+            document.getElementById('moneyLeftMonthly').textContent = formatCurrency(monthlyMoneyLeft);
+            document.getElementById('moneyLeftAnnual').textContent = formatCurrency(annualMoneyLeft);
+        }
+
+        /**
+         * Adds a new debt item row to the outgoings page.
+         */
+        function addDebtItem() {
+            const container = document.getElementById('debt-items-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'debt-item flex flex-col md:flex-row items-start md:items-center gap-2';
+            newItem.innerHTML = `
+                <input type="text" placeholder="e.g., New Loan" class="input-field flex-grow" aria-label="Debt Name">
+                <input type="number" value="0" min="0" class="input-field w-24" oninput="calculateOutgoings()" aria-label="Debt Amount">
+                <select class="select-field w-auto" onchange="calculateOutgoings()" aria-label="Debt Frequency">
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="annually">Annually</option>
+                </select>
+                <button onclick="removeDebtItem(this)" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-lg shadow-sm transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex-shrink-0">
+                    Delete
+                </button>
+            `;
+            container.appendChild(newItem);
+            calculateOutgoings(); // Recalculate after adding
+        }
+
+        /**
+         * Removes a debt item row from the outgoings page.
+         * @param {HTMLElement} button - The delete button clicked.
+         */
+        function removeDebtItem(button) {
+            const itemToRemove = button.closest('.debt-item');
+            if (itemToRemove) {
+                itemToRemove.remove();
+                calculateOutgoings(); // Recalculate after removing
+            }
+        }
+
+
+        /**
+         * Handles page navigation.
+         * @param {string} pageId - The ID of the page to show (e.g., 'page-calculator', 'page-outgoings').
+         */
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+
+            // If navigating to outgoings page, update its display with net pay
+            if (pageId === 'page-outgoings') {
+                document.getElementById('outgoingsMonthlyNet').textContent = formatCurrency(globalMonthlyNetPay);
+                document.getElementById('outgoingsAnnualNet').textContent = formatCurrency(globalAnnualNetPay);
+                calculateOutgoings(); // Recalculate outgoings when page is shown
+            }
+        }
+
+        // Initial calculations and page setup on load
+        window.onload = function() {
+            calculatePay(); // Calculate initial pay
+            showPage('page-calculator'); // Show the calculator page by default
+        };
     </script>
 </body>
 </html>
+
