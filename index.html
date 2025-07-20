@@ -20,7 +20,7 @@
             display: none; /* Hidden by default */
         }
         .page.active {
-            display: block; /* Show active active */
+            display: block; /* Show active page */
         }
         .input-field {
             @apply shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out;
@@ -133,6 +133,18 @@
                     <p><strong>Annual Take-Home Pay:</strong> <span id="annualNet" class="font-bold text-green-700 text-xl"></span></p>
                 </div>
             </div>
+            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <button onclick="saveSettings()"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
+                    Save My Settings
+                </button>
+                <button onclick="loadSettings()"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75">
+                    Load My Settings
+                </button>
+            </div>
+            <div id="saveLoadMessage" class="text-center text-sm mt-2 mb-4"></div>
+
             <button onclick="showPage('page-outgoings')"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
                 View Outgoings
@@ -373,6 +385,22 @@
                     </div>
                 </div>
 
+                <!-- Car Lease -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Car Lease (Electric)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="car_lease_cost" class="block text-gray-700 text-sm font-semibold mb-2">Monthly Lease Cost (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="car_lease_cost" value="300" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="car_lease_cost_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Professional Expenses -->
                 <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
                     <h3 class="category-heading">Professional Expenses</h3>
@@ -478,6 +506,68 @@
                                 <select id="dora_grooming_freq" class="select-field w-auto" onchange="calculateOutgoings()">
                                     <option value="quarterly">Quarterly</option>
                                     <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="dora_insurance" class="block text-gray-700 text-sm font-semibold mb-2">Dog Insurance (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="dora_insurance" value="20" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="dora_insurance_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Childcare -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Childcare</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="childcare_costs" class="block text-gray-700 text-sm font-semibold mb-2">Childcare Costs (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="childcare_costs" value="500" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="childcare_costs_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Groceries -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Groceries</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="groceries_costs" class="block text-gray-700 text-sm font-semibold mb-2">Grocery Costs (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="groceries_costs" value="400" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="groceries_costs_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Private Prescription -->
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="category-heading">Private Prescription</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="private_prescription_costs" class="block text-gray-700 text-sm font-semibold mb-2">Private Prescription Costs (£):</label>
+                            <div class="flex space-x-2">
+                                <input type="number" id="private_prescription_costs" value="50" min="0" class="input-field" oninput="calculateOutgoings()">
+                                <select id="private_prescription_costs_freq" class="select-field w-auto" onchange="calculateOutgoings()">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="annually">Annually</option>
                                 </select>
                             </div>
                         </div>
@@ -639,8 +729,12 @@
                     <p><strong>Services:</strong> <span id="summary_services" class="font-medium"></span></p>
                     <p><strong>Car 1 (Leon):</strong> <span id="summary_car1" class="font-medium"></span></p>
                     <p><strong>Car 2 (Estate):</strong> <span id="summary_car2" class="font-medium"></span></p>
+                    <p><strong>Car Lease (Electric):</strong> <span id="summary_car_lease" class="font-medium"></span></p>
                     <p><strong>Professional Expenses:</strong> <span id="summary_professionalExpenses" class="font-medium"></span></p>
                     <p><strong>Dora (Dog Expenses):</strong> <span id="summary_dora" class="font-medium"></span></p>
+                    <p><strong>Childcare:</strong> <span id="summary_childcare" class="font-medium"></span></p>
+                    <p><strong>Groceries:</strong> <span id="summary_groceries" class="font-medium"></span></p>
+                    <p><strong>Private Prescription:</strong> <span id="summary_private_prescription" class="font-medium"></span></p>
                     <p><strong>Subscriptions:</strong> <span id="summary_subscriptions" class="font-medium"></span></p>
                     <p><strong>Debt Repayments:</strong> <span id="summary_debt" class="font-medium"></span></p>
                     <p><strong>Savings:</strong> <span id="summary_savings" class="font-medium"></span></p>
@@ -656,9 +750,51 @@
                 <p><strong>Annual Money Left:</strong> <span id="moneyLeftAnnual" class="font-bold text-green-700 text-xl"></span></p>
             </div>
 
-            <button onclick="showPage('page-calculator')"
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="showPage('page-calculator')"
+                        class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75">
+                    Back to Calculator
+                </button>
+                <button onclick="showPage('page-summary')"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
+                    View Summary
+                </button>
+            </div>
+        </div>
+
+        <!-- Page 3: Summary -->
+        <div id="page-summary" class="page">
+            <h2 class="text-xl sm:text-2xl font-bold text-center text-blue-700 mb-6">Your Financial Summary</h2>
+
+            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <div class="mb-4">
+                    <label for="summary_baseSalaryAnnual_input" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Base Annual Salary (£):
+                    </label>
+                    <input type="number" id="summary_baseSalaryAnnual_input" value="80000" min="0"
+                           class="input-field"
+                           oninput="updateSummaryIncome()">
+                </div>
+                <div class="mb-4">
+                    <label for="summary_locumHours_input" class="block text-gray-700 text-sm font-semibold mb-2">
+                        Additional Locum Hours per Month:
+                    </label>
+                    <input type="number" id="summary_locumHours_input" value="20" min="0"
+                           class="input-field"
+                           oninput="updateSummaryIncome()">
+                </div>
+
+                <p class="text-lg font-semibold text-blue-800 pt-2 border-t border-blue-200">
+                    Total Monthly Outgoings: <span id="summary_totalMonthlyOutgoings" class="font-bold text-red-600"></span>
+                </p>
+                <p class="text-lg font-semibold text-blue-800">
+                    Total Monthly Money Left: <span id="summary_moneyLeftMonthly" class="font-bold text-green-700"></span>
+                </p>
+            </div>
+
+            <button onclick="showPage('page-outgoings')"
                     class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75">
-                Back to Calculator
+                Back to Outgoings
             </button>
         </div>
 
@@ -681,10 +817,26 @@
         </div>
     </div>
 
-    <script>
-        // Global variables to store net pay for transfer between pages
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables
+        let db;
+        let auth;
+        let userId;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Provided by Canvas environment
+
+        // Global variables to store net pay and other key figures for transfer between pages
         let globalMonthlyNetPay = 0;
         let globalAnnualNetPay = 0;
+        let globalBaseAnnualSalary = 0;
+        let globalLocumHoursPerMonth = 0;
+        let globalTotalMonthlyOutgoings = 0; // This will be calculated on the outgoings page
+        let globalMoneyLeftMonthly = 0; // This will be calculated on the outgoings page
+
 
         // Function to format numbers as currency
         function formatCurrency(amount) {
@@ -790,7 +942,8 @@
         }
 
 
-        function calculatePay() {
+        // Make functions globally accessible for HTML onclick attributes
+        window.calculatePay = function() {
             const selectedTaxYear = document.getElementById('taxYear').value;
             const currentTaxYearData = taxYearData[selectedTaxYear];
 
@@ -839,6 +992,10 @@
                 // Also clear global net pay
                 globalMonthlyNetPay = 0;
                 globalAnnualNetPay = 0;
+                globalBaseAnnualSalary = 0;
+                globalLocumHoursPerMonth = 0;
+                globalTotalMonthlyOutgoings = 0;
+                globalMoneyLeftMonthly = 0;
                 return;
             }
 
@@ -989,9 +1146,11 @@
 
             const monthlyNet = annualTakeHomePay / 12;
 
-            // --- Store net pay globally for the outgoings page ---
+            // --- Store net pay and other key figures globally for the outgoings/summary pages ---
             globalMonthlyNetPay = monthlyNet;
             globalAnnualNetPay = annualTakeHomePay;
+            globalBaseAnnualSalary = baseAnnualSalary;
+            globalLocumHoursPerMonth = locumHoursPerMonth;
 
 
             // --- Display Results ---
@@ -1030,19 +1189,23 @@
         /**
          * Calculates total outgoings and remaining money.
          */
-        function calculateOutgoings() {
+        window.calculateOutgoings = function() {
             let totalMonthlyOutgoings = 0;
             let monthlyCategoryTotals = {
                 housing: 0,
                 services: 0,
                 car1: 0, // Car 1 specific total
                 car2: 0, // Car 2 specific total
-                professionalExpenses: 0, // New category
-                dora: 0, // New category
+                carLease: 0, // New category for electric car lease
+                professionalExpenses: 0,
+                dora: 0,
+                childcare: 0,
+                groceries: 0,
+                privatePrescription: 0,
                 subscriptions: 0,
                 debt: 0,
                 savings: 0,
-                other: 0 // New category
+                other: 0
             };
 
             // Helper to get value and convert to monthly
@@ -1056,7 +1219,7 @@
             monthlyCategoryTotals.housing += getMonthlyValue('housing_mortgageRent', 'housing_mortgageRent_freq');
             monthlyCategoryTotals.housing += getMonthlyValue('housing_councilTax', 'housing_councilTax_freq');
             monthlyCategoryTotals.housing += getMonthlyValue('housing_houseInsurance', 'housing_houseInsurance_freq');
-            monthlyCategoryTotals.housing += getMonthlyValue('housing_maintenance', 'housing_maintenance_freq'); // New item
+            monthlyCategoryTotals.housing += getMonthlyValue('housing_maintenance', 'housing_maintenance_freq');
 
             // Services
             monthlyCategoryTotals.services += getMonthlyValue('services_octopus', 'services_octopus_freq');
@@ -1079,6 +1242,9 @@
             monthlyCategoryTotals.car2 += getMonthlyValue('car2_service', 'car2_service_freq');
             monthlyCategoryTotals.car2 += getMonthlyValue('car2_insurance', 'car2_insurance_freq');
 
+            // Car Lease (Electric)
+            monthlyCategoryTotals.carLease += getMonthlyValue('car_lease_cost', 'car_lease_cost_freq');
+
             // Professional Expenses
             monthlyCategoryTotals.professionalExpenses += getMonthlyValue('prof_bma', 'prof_bma_freq');
             monthlyCategoryTotals.professionalExpenses += getMonthlyValue('prof_rcog', 'prof_rcog_freq');
@@ -1092,6 +1258,16 @@
             monthlyCategoryTotals.dora += getMonthlyValue('dora_vaccines', 'dora_vaccines_freq');
             monthlyCategoryTotals.dora += getMonthlyValue('dora_foodTreats', 'dora_foodTreats_freq');
             monthlyCategoryTotals.dora += getMonthlyValue('dora_grooming', 'dora_grooming_freq');
+            monthlyCategoryTotals.dora += getMonthlyValue('dora_insurance', 'dora_insurance_freq');
+
+            // Childcare
+            monthlyCategoryTotals.childcare += getMonthlyValue('childcare_costs', 'childcare_costs_freq');
+
+            // Groceries
+            monthlyCategoryTotals.groceries += getMonthlyValue('groceries_costs', 'groceries_costs_freq');
+
+            // Private Prescription
+            monthlyCategoryTotals.privatePrescription += getMonthlyValue('private_prescription_costs', 'private_prescription_costs_freq');
 
             // Subscriptions
             monthlyCategoryTotals.subscriptions += getMonthlyValue('subscriptions_netflix', 'subscriptions_netflix_freq');
@@ -1129,17 +1305,26 @@
             const monthlyMoneyLeft = globalMonthlyNetPay - totalMonthlyOutgoings;
             const annualMoneyLeft = globalAnnualNetPay - totalAnnualOutgoings;
 
+            // Store total outgoings and money left globally for summary page
+            globalTotalMonthlyOutgoings = totalMonthlyOutgoings;
+            globalMoneyLeftMonthly = monthlyMoneyLeft;
+
+
             // Display Monthly Costs Summary
             document.getElementById('summary_housing').textContent = formatCurrency(monthlyCategoryTotals.housing);
             document.getElementById('summary_services').textContent = formatCurrency(monthlyCategoryTotals.services);
-            document.getElementById('summary_car1').textContent = formatCurrency(monthlyCategoryTotals.car1); // Display car 1 summary
-            document.getElementById('summary_car2').textContent = formatCurrency(monthlyCategoryTotals.car2); // Display car 2 summary
-            document.getElementById('summary_professionalExpenses').textContent = formatCurrency(monthlyCategoryTotals.professionalExpenses); // Display Professional Expenses summary
-            document.getElementById('summary_dora').textContent = formatCurrency(monthlyCategoryTotals.dora); // Display Dora summary
+            document.getElementById('summary_car1').textContent = formatCurrency(monthlyCategoryTotals.car1);
+            document.getElementById('summary_car2').textContent = formatCurrency(monthlyCategoryTotals.car2);
+            document.getElementById('summary_car_lease').textContent = formatCurrency(monthlyCategoryTotals.carLease);
+            document.getElementById('summary_professionalExpenses').textContent = formatCurrency(monthlyCategoryTotals.professionalExpenses);
+            document.getElementById('summary_dora').textContent = formatCurrency(monthlyCategoryTotals.dora);
+            document.getElementById('summary_childcare').textContent = formatCurrency(monthlyCategoryTotals.childcare);
+            document.getElementById('summary_groceries').textContent = formatCurrency(monthlyCategoryTotals.groceries);
+            document.getElementById('summary_private_prescription').textContent = formatCurrency(monthlyCategoryTotals.privatePrescription);
             document.getElementById('summary_subscriptions').textContent = formatCurrency(monthlyCategoryTotals.subscriptions);
             document.getElementById('summary_debt').textContent = formatCurrency(monthlyCategoryTotals.debt);
             document.getElementById('summary_savings').textContent = formatCurrency(monthlyCategoryTotals.savings);
-            document.getElementById('summary_other').textContent = formatCurrency(monthlyCategoryTotals.other); // Display Other summary
+            document.getElementById('summary_other').textContent = formatCurrency(monthlyCategoryTotals.other);
 
 
             document.getElementById('totalMonthlyOutgoings').textContent = formatCurrency(totalMonthlyOutgoings);
@@ -1151,7 +1336,7 @@
         /**
          * Adds a new debt item row to the outgoings page.
          */
-        function addDebtItem() {
+        window.addDebtItem = function() {
             const container = document.getElementById('debt-items-container');
             const newItem = document.createElement('div');
             newItem.className = 'debt-item flex flex-col md:flex-row items-start md:items-center gap-2';
@@ -1175,7 +1360,7 @@
          * Removes a debt item row from the outgoings page.
          * @param {HTMLElement} button - The delete button clicked.
          */
-        function removeDebtItem(button) {
+        window.removeDebtItem = function(button) {
             const itemToRemove = button.closest('.debt-item');
             if (itemToRemove) {
                 itemToRemove.remove();
@@ -1186,29 +1371,273 @@
 
         /**
          * Handles page navigation.
-         * @param {string} pageId - The ID of the page to show (e.g., 'page-calculator', 'page-outgoings').
+         * @param {string} pageId - The ID of the page to show (e.g., 'page-calculator', 'page-outgoings', 'page-summary').
          */
-        function showPage(pageId) {
+        window.showPage = function(pageId) {
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             document.getElementById(pageId).classList.add('active');
 
-            // If navigating to outgoings page, update its display with net pay
+            // Update content based on the page being shown
             if (pageId === 'page-outgoings') {
                 document.getElementById('outgoingsMonthlyNet').textContent = formatCurrency(globalMonthlyNetPay);
                 document.getElementById('outgoingsAnnualNet').textContent = formatCurrency(globalAnnualNetPay);
                 calculateOutgoings(); // Recalculate outgoings when page is shown
+            } else if (pageId === 'page-summary') {
+                // Populate inputs on summary page with current global values
+                document.getElementById('summary_baseSalaryAnnual_input').value = globalBaseAnnualSalary;
+                document.getElementById('summary_locumHours_input').value = globalLocumHoursPerMonth;
+
+                // Display summary values (these will be updated by updateSummaryIncome)
+                document.getElementById('summary_totalMonthlyOutgoings').textContent = formatCurrency(globalTotalMonthlyOutgoings);
+                document.getElementById('summary_moneyLeftMonthly').textContent = formatCurrency(globalMoneyLeftMonthly);
+            }
+        }
+
+        /**
+         * Updates income figures on the summary page and recalculates pay and money left.
+         * This function is called when inputs on the summary page are changed.
+         */
+        window.updateSummaryIncome = function() {
+            // Get values from summary page inputs
+            const newBaseSalaryAnnual = parseFloat(document.getElementById('summary_baseSalaryAnnual_input').value) || 0;
+            const newLocumHoursPerMonth = parseFloat(document.getElementById('summary_locumHours_input').value) || 0;
+
+            // Update the main calculator inputs (Page 1)
+            document.getElementById('baseSalaryAnnual').value = newBaseSalaryAnnual;
+            document.getElementById('locumHours').value = newLocumHoursPerMonth;
+
+            // Recalculate pay based on the updated main inputs
+            calculatePay(); // This will update globalMonthlyNetPay and globalAnnualNetPay
+
+            // Recalculate outgoings (which depends on globalMonthlyNetPay)
+            calculateOutgoings(); // This will update globalTotalMonthlyOutgoings and globalMoneyLeftMonthly
+
+            // Update the display on the summary page itself
+            document.getElementById('summary_totalMonthlyOutgoings').textContent = formatCurrency(globalTotalMonthlyOutgoings);
+            document.getElementById('summary_moneyLeftMonthly').textContent = formatCurrency(globalMoneyLeftMonthly);
+        }
+
+
+        /**
+         * Collects all input values from the form.
+         * @returns {object} An object containing all input values.
+         */
+        function collectInputs() {
+            const inputs = {};
+
+            // Page 1 inputs
+            inputs.taxYear = document.getElementById('taxYear').value;
+            inputs.baseSalaryAnnual = parseFloat(document.getElementById('baseSalaryAnnual').value) || 0;
+            inputs.locumRate = parseFloat(document.getElementById('locumRate').value) || 0;
+            inputs.locumHoursPerMonth = parseFloat(document.getElementById('locumHours').value) || 0;
+            inputs.salarySacrificeMonthly = parseFloat(document.getElementById('salarySacrificeMonthly').value) || 0;
+            inputs.monthlySIPPContribution = parseFloat(document.getElementById('monthlySIPPContribution').value) || 0;
+
+            // Page 2 inputs (fixed fields)
+            const fixedOutgoings = [
+                'housing_mortgageRent', 'housing_councilTax', 'housing_houseInsurance', 'housing_maintenance',
+                'services_octopus', 'services_severnTrent', 'services_phoneInternet', 'services_streamingTV', 'services_other',
+                'car1_fuel', 'car1_tax', 'car1_mot', 'car1_service', 'car1_insurance',
+                'car2_fuel', 'car2_tax', 'car2_mot', 'car2_service', 'car2_insurance',
+                'car_lease_cost',
+                'prof_bma', 'prof_rcog', 'prof_gmc', 'prof_mdu', 'prof_nmc', 'prof_rcn',
+                'dora_dogWalker', 'dora_vaccines', 'dora_foodTreats', 'dora_grooming', 'dora_insurance',
+                'childcare_costs',
+                'groceries_costs',
+                'private_prescription_costs',
+                'subscriptions_netflix', 'subscriptions_amazonPrime', 'subscriptions_disneyPlus', 'subscriptions_other',
+                'savings_children', 'savings_sands', 'savings_james', 'savings_other',
+                'other_nationalTrust', 'other_miscellaneous'
+            ];
+
+            fixedOutgoings.forEach(id => {
+                inputs[id] = parseFloat(document.getElementById(id).value) || 0;
+                inputs[id + '_freq'] = document.getElementById(id + '_freq').value;
+            });
+
+            // Page 2 inputs (dynamic debt fields)
+            inputs.debtItems = [];
+            document.querySelectorAll('#debt-items-container .debt-item').forEach(item => {
+                const nameInput = item.querySelector('input[type="text"]');
+                const amountInput = item.querySelector('input[type="number"]');
+                const freqSelect = item.querySelector('select');
+                if (nameInput && amountInput && freqSelect) {
+                    inputs.debtItems.push({
+                        name: nameInput.value,
+                        amount: parseFloat(amountInput.value) || 0,
+                        frequency: freqSelect.value
+                    });
+                }
+            });
+
+            return inputs;
+        }
+
+        /**
+         * Populates all input fields with values from a loaded object.
+         * @param {object} settings - The object containing loaded settings.
+         */
+        function populateInputs(settings) {
+            // Page 1 inputs
+            document.getElementById('taxYear').value = settings.taxYear || '2024/2025';
+            document.getElementById('baseSalaryAnnual').value = settings.baseSalaryAnnual || 0;
+            document.getElementById('locumRate').value = settings.locumRate || 0;
+            document.getElementById('locumHoursPerMonth').value = settings.locumHoursPerMonth || 0;
+            document.getElementById('salarySacrificeMonthly').value = settings.salarySacrificeMonthly || 0;
+            document.getElementById('monthlySIPPContribution').value = settings.monthlySIPPContribution || 0;
+
+            // Page 2 inputs (fixed fields)
+            const fixedOutgoings = [
+                'housing_mortgageRent', 'housing_councilTax', 'housing_houseInsurance', 'housing_maintenance',
+                'services_octopus', 'services_severnTrent', 'services_phoneInternet', 'services_streamingTV', 'services_other',
+                'car1_fuel', 'car1_tax', 'car1_mot', 'car1_service', 'car1_insurance',
+                'car2_fuel', 'car2_tax', 'car2_mot', 'car2_service', 'car2_insurance',
+                'car_lease_cost',
+                'prof_bma', 'prof_rcog', 'prof_gmc', 'prof_mdu', 'prof_nmc', 'prof_rcn',
+                'dora_dogWalker', 'dora_vaccines', 'dora_foodTreats', 'dora_grooming', 'dora_insurance',
+                'childcare_costs',
+                'groceries_costs',
+                'private_prescription_costs',
+                'subscriptions_netflix', 'subscriptions_amazonPrime', 'subscriptions_disneyPlus', 'subscriptions_other',
+                'savings_children', 'savings_sands', 'savings_james', 'savings_other',
+                'other_nationalTrust', 'other_miscellaneous'
+            ];
+
+            fixedOutgoings.forEach(id => {
+                if (settings[id] !== undefined) {
+                    document.getElementById(id).value = settings[id];
+                }
+                if (settings[id + '_freq'] !== undefined) {
+                    document.getElementById(id + '_freq').value = settings[id + '_freq'];
+                }
+            });
+
+            // Page 2 inputs (dynamic debt fields)
+            const debtContainer = document.getElementById('debt-items-container');
+            debtContainer.innerHTML = ''; // Clear existing debt items
+
+            if (settings.debtItems && Array.isArray(settings.debtItems)) {
+                settings.debtItems.forEach(debt => {
+                    const newItem = document.createElement('div');
+                    newItem.className = 'debt-item flex flex-col md:flex-row items-start md:items-center gap-2';
+                    newItem.innerHTML = `
+                        <input type="text" placeholder="e.g., New Loan" value="${debt.name || ''}" class="input-field flex-grow" aria-label="Debt Name">
+                        <input type="number" value="${debt.amount || 0}" min="0" class="input-field w-24" oninput="calculateOutgoings()" aria-label="Debt Amount">
+                        <select class="select-field w-auto" onchange="calculateOutgoings()" aria-label="Debt Frequency">
+                            <option value="monthly" ${debt.frequency === 'monthly' ? 'selected' : ''}>Monthly</option>
+                            <option value="quarterly" ${debt.frequency === 'quarterly' ? 'selected' : ''}>Quarterly</option>
+                            <option value="annually" ${debt.frequency === 'annually' ? 'selected' : ''}>Annually</option>
+                        </select>
+                        <button onclick="removeDebtItem(this)" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-lg shadow-sm transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex-shrink-0">
+                            Delete
+                        </button>
+                    `;
+                    debtContainer.appendChild(newItem);
+                });
+            } else {
+                 // If no debt items loaded, add a default one
+                 addDebtItem();
+            }
+
+            // Recalculate everything after populating
+            calculatePay();
+            calculateOutgoings();
+        }
+
+        /**
+         * Saves current input settings to Firestore.
+         */
+        window.saveSettings = async function() {
+            const messageDiv = document.getElementById('saveLoadMessage');
+            messageDiv.textContent = 'Saving...';
+            messageDiv.className = 'text-center text-sm mt-2 mb-4 text-blue-600';
+
+            if (!userId) {
+                messageDiv.textContent = 'Error: User not authenticated. Please refresh.';
+                messageDiv.className = 'text-center text-sm mt-2 mb-4 text-red-600';
+                return;
+            }
+
+            try {
+                const settings = collectInputs();
+                const docRef = doc(db, "artifacts", appId, "users", userId, "calculator_settings", "user_data");
+                await setDoc(docRef, settings);
+                messageDiv.textContent = 'Settings saved successfully!';
+                messageDiv.className = 'text-center text-sm mt-2 mb-4 text-green-600';
+            } catch (error) {
+                console.error("Error saving settings:", error);
+                messageDiv.textContent = `Error saving settings: ${error.message}`;
+                messageDiv.className = 'text-center text-sm mt-2 mb-4 text-red-600';
+            }
+        }
+
+        /**
+         * Loads saved settings from Firestore.
+         */
+        window.loadSettings = async function() {
+            const messageDiv = document.getElementById('saveLoadMessage');
+            messageDiv.textContent = 'Loading...';
+            messageDiv.className = 'text-center text-sm mt-2 mb-4 text-blue-600';
+
+            if (!userId) {
+                messageDiv.textContent = 'Error: User not authenticated. Please refresh.';
+                messageDiv.className = 'text-center text-sm mt-2 mb-4 text-red-600';
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "artifacts", appId, "users", userId, "calculator_settings", "user_data");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const loadedSettings = docSnap.data();
+                    populateInputs(loadedSettings);
+                    messageDiv.textContent = 'Settings loaded successfully!';
+                    messageDiv.className = 'text-center text-sm mt-2 mb-4 text-green-600';
+                } else {
+                    messageDiv.textContent = 'No saved settings found.';
+                    messageDiv.className = 'text-center text-sm mt-2 mb-4 text-orange-600';
+                }
+            } catch (error) {
+                console.error("Error loading settings:", error);
+                messageDiv.textContent = `Error loading settings: ${error.message}`;
+                messageDiv.className = 'text-center text-sm mt-2 mb-4 text-red-600';
+            }
+        }
+
+        // Initial Firebase setup and authentication
+        async function initializeFirebaseAndAuth() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Sign in with custom token if available, otherwise anonymously
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Set userId after authentication
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                console.log("Firebase initialized. User ID:", userId);
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                document.getElementById('saveLoadMessage').textContent = `Firebase init error: ${error.message}. Save/Load disabled.`;
+                document.getElementById('saveLoadMessage').className = 'text-center text-sm mt-2 mb-4 text-red-600';
             }
         }
 
         // Initial calculations and page setup on load
-        window.onload = function() {
+        window.onload = async function() {
+            await initializeFirebaseAndAuth(); // Initialize Firebase first
             calculatePay(); // Calculate initial pay
             showPage('page-calculator'); // Show the calculator page by default
         };
     </script>
 </body>
 </html>
-
-
