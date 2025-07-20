@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NHS Doctor Take-Home Pay Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .info-detail {
+            font-size: 0.875rem; /* text-sm */
+            color: #4b5563; /* gray-700 */
+            margin-left: 1.5rem; /* ml-6 */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8 lg:p-10 bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-xl md:max-w-2xl lg:max-w-3xl">
+        <h1 class="text-2xl sm:text-3xl font-bold text-center text-blue-700 mb-6">NHS Doctor Take-Home Pay Calculator</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="mb-4 md:mb-0">
+                <label for="taxYear" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Select Tax Year:
+                </label>
+                <select id="taxYear"
+                        class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                        onchange="calculatePay()">
+                    <option value="2024/2025" selected>2024/2025</option>
+                    <option value="2025/2026">2025/2026</option>
+                </select>
+            </div>
+
+            <div class="mb-4 md:mb-0">
+                <label for="baseSalaryAnnual" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Base Annual Salary (£):
+                </label>
+                <input type="number" id="baseSalaryAnnual" value="80000" min="0"
+                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                       oninput="calculatePay()">
+            </div>
+
+            <div class="mb-4 md:mb-0">
+                <label for="locumRate" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Locum Hourly Rate (£):
+                </label>
+                <input type="number" id="locumRate" value="80" min="0"
+                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                       oninput="calculatePay()">
+            </div>
+
+            <div class="mb-4 md:mb-0">
+                <label for="locumHours" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Additional Locum Hours per Month:
+                </label>
+                <input type="number" id="locumHours" value="20" min="0"
+                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                       oninput="calculatePay()">
+            </div>
+
+            <div class="mb-4 md:mb-0">
+                <label for="salarySacrificeMonthly" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Monthly Salary Sacrifice Amount (£):
+                </label>
+                <input type="number" id="salarySacrificeMonthly" value="0" min="0"
+                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus="ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                       oninput="calculatePay()">
+            </div>
+
+            <div class="mb-4 md:mb-0">
+                <label for="monthlySIPPContribution" class="block text-gray-700 text-sm font-semibold mb-2">
+                    Monthly SIPP Contribution (Net) (£):
+                </label>
+                <input type="number" id="monthlySIPPContribution" value="0" min="0"
+                       class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus="ring-blue-500 focus:border-transparent transition duration-200 ease-in-out"
+                       oninput="calculatePay()">
+            </div>
+        </div>
+
+        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+            <h2 class="text-lg font-semibold text-blue-800 mb-3">Pay Breakdown:</h2>
+            <div class="space-y-2 text-gray-800">
+                <p><strong>Total Gross Annual Income:</strong> <span id="annualGross" class="font-medium"></span></p>
+                <p><strong>Total Gross Monthly Income:</strong> <span id="monthlyGross" class="font-medium"></span></p>
+
+                <p class="pt-2 border-t border-blue-200"><strong>Annual Pension Contribution:</strong> <span id="annualPension" class="font-medium text-red-600"></span></p>
+                <p class="info-detail" id="pensionRateDetail"></p>
+                <p><strong>Monthly Pension Contribution:</strong> <span id="monthlyPension" class="font-medium text-red-600"></span></p>
+
+                <p><strong>Annual Salary Sacrifice:</strong> <span id="annualSalarySacrifice" class="font-medium text-red-600"></span></p>
+                <p><strong>Monthly Salary Sacrifice:</strong> <span id="monthlySalarySacrifice" class="font-medium text-red-600"></span></p>
+
+                <p><strong>Annual SIPP Contribution (Net):</strong> <span id="annualSIPPContributionDisplay" class="font-medium text-red-600"></span></p>
+                <p><strong>Monthly SIPP Contribution (Net):</strong> <span id="monthlySIPPContributionDisplay" class="font-medium text-red-600"></span></p>
+                <p class="info-detail" id="sippTaxReliefDetail"></p>
+                <p><strong>Annual SIPP Tax Relief:</strong> <span id="annualSIPP_TaxRelief" class="font-medium text-green-700"></span></p>
+                <p><strong>Monthly SIPP Tax Relief:</strong> <span id="monthlySIPP_TaxRelief" class="font-medium text-green-700"></span></p>
+
+
+                <p class="pt-2 border-t border-blue-200"><strong>Annual Income Tax:</strong> <span id="annualTax" class="font-medium text-red-600"></span></p>
+                <div id="taxBreakdown" class="info-detail space-y-1"></div>
+                <p><strong>Monthly Income Tax:</strong> <span id="monthlyTax" class="font-medium text-red-600"></span></p>
+
+                <p><strong>Annual National Insurance:</strong> <span id="annualNI" class="font-medium text-red-600"></span></p>
+                <div id="niBreakdown" class="info-detail space-y-1"></div>
+                <p><strong>Monthly National Insurance:</strong> <span id="monthlyNI" class="font-medium text-red-600"></span></p>
+
+                <p class="pt-2 border-t border-blue-200"><strong>Annual Personal Allowance Lost:</strong> <span id="annualPALost" class="font-medium text-red-600"></span></p>
+                <p><strong>Monthly Personal Allowance Lost:</strong> <span id="monthlyPALost" class="font-medium text-red-600"></span></p>
+
+                <p class="pt-2 border-t border-blue-200"><strong>Monthly Take-Home Pay:</strong> <span id="monthlyNet" class="font-bold text-green-700 text-xl"></span></p>
+                <p><strong>Annual Take-Home Pay:</strong> <span id="annualNet" class="font-bold text-green-700 text-xl"></span></p>
+            </div>
+        </div>
+
+        <div class="text-sm text-gray-600">
+            <p>
+                * Calculations are based on the selected UK tax year rates.
+            </p>
+            <p>
+                * NHS Pension contribution rates are tiered based on your pensionable pay (gross income minus salary sacrifice).
+            </p>
+            <p>
+                * Personal Allowance tapering applies for incomes over £100,000.
+            </p>
+            <p>
+                * SIPP contributions are assumed to be made from net pay, with basic rate tax relief (20%) added by the provider, and higher/additional rate relief claimed separately from HMRC.
+            </p>
+            <p>
+                * **Disclaimer:** This calculator provides an estimate based on current publicly available information and typical deductions. It does not account for all individual circumstances (e.g., specific tax codes, other allowances, student loans, or unusual deductions). Always consult with a financial advisor for personalized advice.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Function to format numbers as currency
+        function formatCurrency(amount) {
+            return `£${amount.toFixed(2)}`;
+        }
+
+        // Data for different tax years
+        const taxYearData = {
+            "2024/2025": {
+                personalAllowance: 12570,
+                incomeTaxBands: [
+                    { threshold: 0, rate: 0.20, name: "Basic Rate" },
+                    { threshold: 37701, rate: 0.40, name: "Higher Rate" },
+                    { threshold: 125141, rate: 0.45, name: "Additional Rate" }
+                ],
+                niThresholds: [
+                    { threshold: 0, rate: 0.00, name: "Primary Threshold" },
+                    { threshold: 12571, rate: 0.08, name: "Main Rate" },
+                    { threshold: 50271, rate: 0.02, name: "Upper Earnings Limit" }
+                ],
+                nhsPensionTiers: [
+                    { threshold: 0, rate: 0.052 },        // Up to £13,246
+                    { threshold: 13247, rate: 0.065 },    // £13,247 to £26,117
+                    { threshold: 26118, rate: 0.071 },    // £26,118 to £32,606
+                    { threshold: 32607, rate: 0.076 },    // £32,607 to £39,095
+                    { threshold: 39096, rate: 0.083 },    // £39,096 to £45,584
+                    { threshold: 45585, rate: 0.092 },    // £45,585 to £50,974
+                    { threshold: 50975, rate: 0.100 },    // £50,975 to £56,363
+                    { threshold: 56364, rate: 0.116 },    // £56,364 to £70,454
+                    { threshold: 70455, rate: 0.125 },    // £70,455 to £111,376
+                    { threshold: 111377, rate: 0.135 }    // £111,377 and above
+                ]
+            },
+            "2025/2026": {
+                // Assuming same rates as 2024/2025 for now as official 25/26 NHS pension tiers
+                // and any other potential changes might not be fully released or finalized.
+                // Tax and NI rates are confirmed to be the same as 24/25.
+                personalAllowance: 12570,
+                incomeTaxBands: [
+                    { threshold: 0, rate: 0.20, name: "Basic Rate" },
+                    { threshold: 37701, rate: 0.40, name: "Higher Rate" },
+                    { threshold: 125141, rate: 0.45, name: "Additional Rate" }
+                ],
+                niThresholds: [
+                    { threshold: 0, rate: 0.00, name: "Primary Threshold" },
+                    { threshold: 12571, rate: 0.08, name: "Main Rate" },
+                    { threshold: 50271, rate: 0.02, name: "Upper Earnings Limit" }
+                ],
+                nhsPensionTiers: [
+                    { threshold: 0, rate: 0.052 },        // Up to £13,246
+                    { threshold: 13247, rate: 0.065 },    // £13,247 to £26,117
+                    { threshold: 26118, rate: 0.071 },    // £26,118 to £32,606
+                    { threshold: 32607, rate: 0.076 },    // £32,607 to £39,095
+                    { threshold: 39096, rate: 0.083 },    // £39,096 to £45,584
+                    { threshold: 45585, rate: 0.092 },    // £45,585 to £50,974
+                    { threshold: 50975, rate: 0.100 },    // £50,975 to £56,363
+                    { threshold: 56364, rate: 0.116 },    // £56,364 to £70,454
+                    { threshold: 70455, rate: 0.125 },    // £70,455 to £111,376
+                    { threshold: 111377, rate: 0.135 }    // £111,377 and above
+                ]
+            }
+        };
+
+
+        /**
+         * Calculates the NHS Pension contribution rate based on annual pensionable pay
+         * and the selected tax year's tiers.
+         * @param {number} pensionablePay - The annual income used for pension calculation (gross minus salary sacrifice).
+         * @param {string} taxYear - The selected tax year (e.g., "2024/2025").
+         * @returns {object} An object containing the rate and the applicable tier name.
+         */
+        function getNhsPensionRate(pensionablePay, taxYear) {
+            const tiers = taxYearData[taxYear].nhsPensionTiers;
+
+            for (let i = tiers.length - 1; i >= 0; i--) {
+                if (pensionablePay >= tiers[i].threshold) {
+                    const nextThreshold = (i + 1 < tiers.length) ? tiers[i+1].threshold -1 : 'and above';
+                    const tierName = `Tier: £${tiers[i].threshold.toLocaleString()} to £${nextThreshold.toLocaleString()} (${(tiers[i].rate * 100).toFixed(1)}%)`;
+                    return { rate: tiers[i].rate, name: tierName };
+                }
+            }
+            // Default to the lowest rate if somehow below the first threshold
+            return { rate: tiers[0].rate, name: `Tier: Up to £${tiers[0].threshold.toLocaleString()} (${(tiers[0].rate * 100).toFixed(1)}%)` };
+        }
+
+
+        function calculatePay() {
+            const selectedTaxYear = document.getElementById('taxYear').value;
+            const currentTaxYearData = taxYearData[selectedTaxYear];
+
+            const baseAnnualSalary = parseFloat(document.getElementById('baseSalaryAnnual').value);
+            const locumHourlyRate = parseFloat(document.getElementById('locumRate').value);
+            const locumHoursPerMonth = parseFloat(document.getElementById('locumHours').value);
+            const monthlySalarySacrifice = parseFloat(document.getElementById('salarySacrificeMonthly').value);
+            // Changed SIPP input to monthly
+            const monthlySIPPContribution = parseFloat(document.getElementById('monthlySIPPContribution').value);
+
+            // Calculate annual equivalents from monthly inputs
+            const annualLocumIncome = locumHoursPerMonth * locumHourlyRate * 12;
+            const annualSalarySacrifice = monthlySalarySacrifice * 12;
+            const annualSIPPContribution = monthlySIPPContribution * 12; // Calculate annual SIPP from monthly input
+
+            // Calculate total gross annual income (before salary sacrifice)
+            const grossAnnualIncomeBeforeSacrifice = baseAnnualSalary + annualLocumIncome;
+
+            // Effective gross income after salary sacrifice, for pension/tax/NI calculations
+            const effectiveGrossIncome = grossAnnualIncomeBeforeSacrifice - annualSalarySacrifice;
+
+            if (isNaN(effectiveGrossIncome) || effectiveGrossIncome < 0) {
+                // Clear all results if input is invalid
+                document.getElementById('annualGross').textContent = '';
+                document.getElementById('monthlyGross').textContent = '';
+                document.getElementById('annualPension').textContent = '';
+                document.getElementById('monthlyPension').textContent = '';
+                document.getElementById('pensionRateDetail').textContent = '';
+                document.getElementById('annualSalarySacrifice').textContent = '';
+                document.getElementById('monthlySalarySacrifice').textContent = '';
+                document.getElementById('annualSIPPContributionDisplay').textContent = '';
+                document.getElementById('monthlySIPPContributionDisplay').textContent = '';
+                document.getElementById('sippTaxReliefDetail').innerHTML = '';
+                document.getElementById('annualSIPP_TaxRelief').textContent = '';
+                document.getElementById('monthlySIPP_TaxRelief').textContent = '';
+                document.getElementById('annualTax').textContent = '';
+                document.getElementById('monthlyTax').textContent = '';
+                document.getElementById('taxBreakdown').innerHTML = '';
+                document.getElementById('annualNI').textContent = '';
+                document.getElementById('monthlyNI').textContent = '';
+                document.getElementById('niBreakdown').innerHTML = '';
+                document.getElementById('annualPALost').textContent = '';
+                document.getElementById('monthlyPALost').textContent = '';
+                document.getElementById('monthlyNet').textContent = '';
+                document.getElementById('annualNet').textContent = '';
+                return;
+            }
+
+            // --- Annual Calculations ---
+
+            // 1. Pension Contribution (based on tiered rate)
+            const pensionDetails = getNhsPensionRate(effectiveGrossIncome, selectedTaxYear);
+            const annualPensionContribution = effectiveGrossIncome * pensionDetails.rate;
+
+            // 2. Adjusted Net Income (ANI) for Personal Allowance and Tax Calculation
+            // This is effectiveGrossIncome minus pension contributions.
+            const adjustedNetIncome = effectiveGrossIncome - annualPensionContribution;
+
+            // 3. Personal Allowance (PA)
+            const standardPersonalAllowance = currentTaxYearData.personalAllowance; // Store original PA
+            let personalAllowance = standardPersonalAllowance;
+            let annualPersonalAllowanceLost = 0; // Initialize lost amount
+
+            if (adjustedNetIncome > 100000) {
+                const paReduction = (adjustedNetIncome - 100000) / 2;
+                personalAllowance = Math.max(0, personalAllowance - paReduction);
+                annualPersonalAllowanceLost = standardPersonalAllowance - personalAllowance; // Calculate lost amount
+            }
+
+            // 4. Taxable Income (income after PA and pension/salary sacrifice deductions)
+            let taxableIncome = Math.max(0, adjustedNetIncome - personalAllowance);
+
+            // 5. Income Tax Calculation (based on selected tax year's UK rates)
+            let annualIncomeTax = 0;
+            let taxBreakdownHtml = '';
+            let incomeToTax = taxableIncome; // This is the income *after* PA
+
+            // Basic Rate Band (20%)
+            const basicRateThreshold = currentTaxYearData.incomeTaxBands[0].threshold; // 0
+            const higherRateThreshold = currentTaxYearData.incomeTaxBands[1].threshold; // 37701
+            const additionalRateThreshold = currentTaxYearData.incomeTaxBands[2].threshold; // 125141
+
+            const basicRate = currentTaxYearData.incomeTaxBands[0].rate;
+            const higherRate = currentTaxYearData.incomeTaxBands[1].rate;
+            const additionalRate = currentTaxYearData.incomeTaxBands[2].rate;
+
+            // Tax on Basic Rate Band
+            const taxedAtBasicRate = Math.min(incomeToTax, higherRateThreshold - basicRateThreshold);
+            if (taxedAtBasicRate > 0) {
+                const tax = taxedAtBasicRate * basicRate;
+                annualIncomeTax += tax;
+                taxBreakdownHtml += `<p>£${taxedAtBasicRate.toFixed(2)} at ${(basicRate * 100).toFixed(0)}% (${currentTaxYearData.incomeTaxBands[0].name}): ${formatCurrency(tax)}</p>`;
+                incomeToTax -= taxedAtBasicRate;
+            }
+
+            // Tax on Higher Rate Band
+            if (incomeToTax > 0) {
+                const taxedAtHigherRate = Math.min(incomeToTax, additionalRateThreshold - higherRateThreshold);
+                if (taxedAtHigherRate > 0) {
+                    const tax = taxedAtHigherRate * higherRate;
+                    annualIncomeTax += tax;
+                    taxBreakdownHtml += `<p>£${taxedAtHigherRate.toFixed(2)} at ${(higherRate * 100).toFixed(0)}% (${currentTaxYearData.incomeTaxBands[1].name}): ${formatCurrency(tax)}</p>`;
+                    incomeToTax -= taxedAtHigherRate;
+                }
+            }
+
+            // Tax on Additional Rate Band
+            if (incomeToTax > 0) {
+                const taxedAtAdditionalRate = incomeToTax; // All remaining income
+                const tax = taxedAtAdditionalRate * additionalRate;
+                annualIncomeTax += tax;
+                taxBreakdownHtml += `<p>£${taxedAtAdditionalRate.toFixed(2)} at ${(additionalRate * 100).toFixed(0)}% (${currentTaxYearData.incomeTaxBands[2].name}): ${formatCurrency(tax)}</p>`;
+            }
+
+
+            // 6. National Insurance (NI) Calculation (based on selected tax year's UK rates)
+            // NI is calculated on effective gross income (after salary sacrifice).
+            let annualNationalInsurance = 0;
+            let niBreakdownHtml = '';
+            let earningsForNI = effectiveGrossIncome; // Income for NI calculation
+
+            const niPrimaryThreshold = currentTaxYearData.niThresholds[0].threshold; // 0
+            const niMainRateStart = currentTaxYearData.niThresholds[1].threshold; // 12571
+            const niUELStart = currentTaxYearData.niThresholds[2].threshold; // 50271
+
+            const niMainRate = currentTaxYearData.niThresholds[1].rate;
+            const niUELRate = currentTaxYearData.niThresholds[2].rate;
+
+            // NI on Main Rate Band (8%)
+            // Earnings between niMainRateStart and niUELStart
+            const earningsInMainNI = Math.min(Math.max(0, earningsForNI - niMainRateStart + 1), niUELStart - niMainRateStart);
+            if (earningsInMainNI > 0) {
+                const ni = earningsInMainNI * niMainRate;
+                annualNationalInsurance += ni;
+                niBreakdownHtml += `<p>£${earningsInMainNI.toFixed(2)} at ${(niMainRate * 100).toFixed(0)}% (${currentTaxYearData.niThresholds[1].name}): ${formatCurrency(ni)}</p>`;
+            }
+
+            // NI on Upper Earnings Limit Band (2%)
+            // Earnings above niUELStart
+            const earningsInUELNI = Math.max(0, earningsForNI - niUELStart + 1);
+            if (earningsInUELNI > 0) {
+                const ni = earningsInUELNI * niUELRate;
+                annualNationalInsurance += ni;
+                niBreakdownHtml += `<p>£${earningsInUELNI.toFixed(2)} at ${(niUELRate * 100).toFixed(0)}% (${currentTaxYearData.niThresholds[2].name}): ${formatCurrency(ni)}</p>`;
+            }
+
+
+            // 7. SIPP Tax Relief Calculation
+            let additionalSIPP_TaxRelief = 0;
+            let sippGrossContribution = 0;
+            let sippTaxReliefDetailHtml = '';
+
+            if (annualSIPPContribution > 0) {
+                sippGrossContribution = annualSIPPContribution / 0.8; // Gross up by basic rate relief (20%)
+
+                // Determine marginal tax rate based on adjustedNetIncome
+                let marginalTaxRateForSIPP = 0.20; // Default to basic rate
+                if (adjustedNetIncome > additionalRateThreshold -1) { // If income hits additional rate band
+                    marginalTaxRateForSIPP = 0.45;
+                } else if (adjustedNetIncome > higherRateThreshold -1) { // If income hits higher rate band
+                    marginalTaxRateForSIPP = 0.40;
+                }
+
+                additionalSIPP_TaxRelief = sippGrossContribution * (marginalTaxRateForSIPP - 0.20);
+
+                sippTaxReliefDetailHtml = `<p>Gross SIPP Contribution: ${formatCurrency(sippGrossContribution)}</p>`;
+                if (marginalTaxRateForSIPP > 0.20) {
+                    sippTaxReliefDetailHtml += `<p>Additional tax relief claimed from HMRC: ${formatCurrency(additionalSIPP_TaxRelief)} (at ${(marginalTaxRateForSIPP * 100).toFixed(0)}% - 20%)</p>`;
+                } else {
+                    sippTaxReliefDetailHtml += `<p>Basic rate tax relief (20%) already added by provider.</p>`;
+                }
+            }
+
+
+            // 8. Annual Take-Home Pay
+            // This is the original gross minus all deductions, PLUS SIPP tax relief.
+            const annualTakeHomePay = grossAnnualIncomeBeforeSacrifice
+                                     - annualPensionContribution
+                                     - annualIncomeTax
+                                     - annualNationalInsurance
+                                     - annualSalarySacrifice
+                                     - annualSIPPContribution // Net amount paid by user
+                                     + additionalSIPP_TaxRelief; // Additional relief from HMRC
+
+            // --- Monthly Conversions for Display ---
+            const monthlyGross = grossAnnualIncomeBeforeSacrifice / 12;
+            const monthlyPension = annualPensionContribution / 12;
+            const monthlyTax = annualIncomeTax / 12;
+            const monthlyNI = annualNationalInsurance / 12;
+            const monthlyPersonalAllowanceLost = annualPersonalAllowanceLost / 12;
+            // monthlySIPPContribution is already monthly from input
+            const monthlySIPP_TaxRelief = additionalSIPP_TaxRelief / 12;
+
+            const monthlyNet = annualTakeHomePay / 12;
+
+            // --- Display Results ---
+            document.getElementById('annualGross').textContent = formatCurrency(grossAnnualIncomeBeforeSacrifice);
+            document.getElementById('monthlyGross').textContent = formatCurrency(monthlyGross);
+
+            document.getElementById('annualPension').textContent = formatCurrency(annualPensionContribution);
+            document.getElementById('monthlyPension').textContent = formatCurrency(monthlyPension);
+            document.getElementById('pensionRateDetail').textContent = `(Applied rate: ${pensionDetails.name})`;
+
+            document.getElementById('annualSalarySacrifice').textContent = formatCurrency(annualSalarySacrifice);
+            document.getElementById('monthlySalarySacrifice').textContent = formatCurrency(monthlySalarySacrifice);
+
+            // Display for SIPP contributions
+            document.getElementById('annualSIPPContributionDisplay').textContent = formatCurrency(annualSIPPContribution);
+            document.getElementById('monthlySIPPContributionDisplay').textContent = formatCurrency(monthlySIPPContribution);
+            document.getElementById('sippTaxReliefDetail').innerHTML = sippTaxReliefDetailHtml;
+            document.getElementById('annualSIPP_TaxRelief').textContent = formatCurrency(additionalSIPP_TaxRelief);
+            document.getElementById('monthlySIPP_TaxRelief').textContent = formatCurrency(monthlySIPP_TaxRelief);
+
+            document.getElementById('annualTax').textContent = formatCurrency(annualIncomeTax);
+            document.getElementById('monthlyTax').textContent = formatCurrency(monthlyTax);
+            document.getElementById('taxBreakdown').innerHTML = taxBreakdownHtml;
+
+            document.getElementById('annualNI').textContent = formatCurrency(annualNationalInsurance);
+            document.getElementById('monthlyNI').textContent = formatCurrency(monthlyNI);
+            document.getElementById('niBreakdown').innerHTML = niBreakdownHtml;
+
+            document.getElementById('annualPALost').textContent = formatCurrency(annualPersonalAllowanceLost);
+            document.getElementById('monthlyPALost').textContent = formatCurrency(monthlyPersonalAllowanceLost);
+
+            document.getElementById('monthlyNet').textContent = formatCurrency(monthlyNet);
+            document.getElementById('annualNet').textContent = formatCurrency(annualTakeHomePay);
+        }
+
+        // Calculate on page load with default values
+        window.onload = calculatePay;
+    </script>
+</body>
+</html>
